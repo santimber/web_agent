@@ -56,50 +56,27 @@ def multiply(a: int, b: int) -> int:
 
 
 def wiki_search(query: str, year: str = None) -> str:
-    """ 
-    Search Wikipedia for a query and return comprehensive results from one page.
-
-    Args:
-        query: The search query
-        year: Optional year to specify which version of Wikipedia to use (e.g., "2022")
     """
-    # Modify query to include year specification if provided
+    Search Wikipedia for a query and return the URL of the most relevant page. 
+    """
     if year:
         search_query = f"{query} {year} Wikipedia"
     else:
         search_query = query
 
-    # Try the search query
     try:
         docs = WikipediaLoader(
             query=search_query,
             load_max_docs=1,
-            doc_content_chars_max=100000  # Very high limit to get full content
+            doc_content_chars_max=100
         ).load()
-
         if docs and len(docs) > 0:
-            doc = docs[0]
+            url = docs[0].metadata["source"]
+            return url
         else:
-            # Fallback to original query if year-specific search fails
-            docs = WikipediaLoader(
-                query=query,
-                load_max_docs=1,
-                doc_content_chars_max=100000
-            ).load()
-            if docs and len(docs) > 0:
-                doc = docs[0]
-            else:
-                return "No Wikipedia pages found for this query."
-    except:
-        return "Error searching Wikipedia."
-
-    # Add year information to the output if specified
-    year_info = f" (Requested: {year} data)" if year else ""
-
-    # Format the page with full content
-    formatted_search_docs = f'<Document source="{doc.metadata["source"]}" page="{doc.metadata.get("page", "")}"{year_info}/>\n{doc.page_content}\n</Document>'
-
-    return formatted_search_docs
+            return "No Wikipedia pages found for this query."
+    except Exception as e:
+        return f"Error searching Wikipedia: {e}"
 
 
 async def fetch_page_async(url: str) -> str:
@@ -126,9 +103,10 @@ async def fetch_page_async(url: str) -> str:
         await browser.close()
     return html
 
+
 def extract_tables_tool(html: str):
     """
-    Extract discography-related tables from HTML using pandas.read_html.
+    Extract tables from HTML using pandas.read_html. Use this after fetch_page_sync to extract structured data from Wikipedia or other web pages.
 
     Args:
         html (str): Full HTML string of a webpage.
@@ -153,15 +131,16 @@ def extract_tables_tool(html: str):
     except Exception as e:
         return [f"Error extracting tables: {e}"]
 
+
 def fetch_page_sync(url: str) -> str:
     """
-    Sync wrapper for fetch_page_async to be used with LangGraph ToolNode.
+    Synchronously fetch the full HTML content of a web page using Playwright. Use this to retrieve the HTML of a Wikipedia page for table extraction with extract_tables_tool.
     """
     return asyncio.run(fetch_page_async(url))
 
 
 # Testing the function
-""" 
+"""
 html = await fetch_page_async("https://en.wikipedia.org/wiki/Mercedes_Sosa")
 tables = extract_tables_tool(html)
 print("\n\n---\n\n".join(tables))
