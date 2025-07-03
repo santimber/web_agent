@@ -158,9 +158,11 @@ def fetch_page_sync(url: str) -> str:
     Sync wrapper for fetch_page_async to be used with LangGraph ToolNode.
     """
     return asyncio.run(fetch_page_async(url))
-""" 
+
 
 # Testing the function
+""" 
 html = await fetch_page_async("https://en.wikipedia.org/wiki/Mercedes_Sosa")
 tables = extract_tables_tool(html)
 print("\n\n---\n\n".join(tables))
+"""
