@@ -1,0 +1,12 @@
+langgraph
+langgraph-prebuilt
+langchain-core
+langchain-community
+langchain-openai
+python-dotenv
+pandas
+playwright  # Requires: playwright install (for browser binaries)
+tavily-python
+wikipedia
+ipython
+
