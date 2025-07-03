@@ -1,6 +1,6 @@
 # GAIA Benchmark LangGraph Agent
 
-A LangGraph-based AI agent for answering questions using web search, Wikipedia, and web scraping capabilities.
+A LangGraph-based AI agent for answering questions using web search, Wikipedia, and web scraping capabilities, in line with GAIA benchmarks.
 
 ## Features
 
