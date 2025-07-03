@@ -33,8 +33,13 @@ to be put in the list is a number or a string.
 
 # setting up the graph
 # Node 1: LLM with tools
+
+MAX_HISTORY = 2  
+
 def agent_with_tools(state: MessagesState):
-    return {"messages": [llm_with_tools.invoke([sys_msg] + state["messages"])]}
+    # Only keep the last N messages
+    recent_messages = state["messages"][-MAX_HISTORY:]
+    return {"messages": [llm_with_tools.invoke([sys_msg] + recent_messages)]}
 
 
 # old node when we were simply routing
@@ -46,7 +51,8 @@ def agent_with_tools(state: MessagesState):
 # Build Graptgh
 builder = StateGraph(MessagesState)
 builder.add_node("agent_with_tools", agent_with_tools)
-builder.add_node("tools", ToolNode([multiply, fetch_page_sync, extract_tables_tool, wiki_search]))
+builder.add_node("tools", ToolNode(
+    [multiply, fetch_page_sync, extract_tables_tool, wiki_search]))
 builder.add_edge(START, "agent_with_tools")
 builder.add_conditional_edges(
     "agent_with_tools", tools_condition
@@ -64,5 +70,3 @@ messages = [HumanMessage(
 messages = graph.invoke({"messages": messages})
 for m in messages['messages']:
     m.pretty_print()
-
-
