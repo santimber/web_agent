@@ -5,13 +5,13 @@ from langgraph.graph import MessagesState
 from langgraph.prebuilt import ToolNode
 from langgraph.prebuilt import tools_condition
 from langchain_core.messages import HumanMessage, SystemMessage
-from tools import multiply, fetch_page_sync, extract_tables_tool, wiki_search
+from tools import multiply, fetch_page_sync, extract_tables_tool, wiki_search, tavily_search
 from langgraph.graph import MessagesState
 import asyncio
 
 
 # combine tools
-tools = [multiply, fetch_page_sync, extract_tables_tool, wiki_search]
+tools = [multiply, fetch_page_sync, extract_tables_tool, wiki_search, tavily_search]
 
 # Set up LLM
 llm = ChatOpenAI(model="gpt-4o", temperature=0)
@@ -52,7 +52,7 @@ def agent_with_tools(state: MessagesState):
 builder = StateGraph(MessagesState)
 builder.add_node("agent_with_tools", agent_with_tools)
 builder.add_node("tools", ToolNode(
-    [multiply, fetch_page_sync, extract_tables_tool, wiki_search]))
+    [multiply, fetch_page_sync, extract_tables_tool, wiki_search, tavily_search]))
 builder.add_edge(START, "agent_with_tools")
 builder.add_conditional_edges(
     "agent_with_tools", tools_condition
