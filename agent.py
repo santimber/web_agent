@@ -11,7 +11,8 @@ import asyncio
 
 
 # combine tools
-tools = [multiply, fetch_page_sync, extract_tables_tool, wiki_search, tavily_search]
+tools = [multiply, fetch_page_sync,
+         extract_tables_tool, wiki_search, tavily_search]
 
 # Set up LLM
 llm = ChatOpenAI(model="gpt-4o", temperature=0)
@@ -34,7 +35,8 @@ to be put in the list is a number or a string.
 # setting up the graph
 # Node 1: LLM with tools
 
-MAX_HISTORY = 2  
+MAX_HISTORY = 2
+
 
 def agent_with_tools(state: MessagesState):
     # Only keep the last N messages
@@ -70,3 +72,6 @@ messages = [HumanMessage(
 messages = graph.invoke({"messages": messages})
 for m in messages['messages']:
     m.pretty_print()
+    
+    
+
