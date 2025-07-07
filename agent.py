@@ -53,8 +53,7 @@ def agent_with_tools(state: MessagesState):
 # Build Graptgh
 builder = StateGraph(MessagesState)
 builder.add_node("agent_with_tools", agent_with_tools)
-builder.add_node("tools", ToolNode(
-    [multiply, fetch_page_sync, extract_tables_tool, wiki_search, tavily_search]))
+builder.add_node("tools", ToolNode(tools))
 builder.add_edge(START, "agent_with_tools")
 builder.add_conditional_edges(
     "agent_with_tools", tools_condition
