@@ -2,6 +2,7 @@
 # Imports and Environment
 # =========================
 import os
+import shutil
 from dotenv import load_dotenv
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_community.tools import Tool
@@ -12,12 +13,16 @@ from langchain.tools import tool
 from playwright.sync_api import sync_playwright
 import asyncio
 from playwright.async_api import async_playwright
+
 # Importing PDF loader from Langchain
 from langchain.document_loaders.pdf import PyPDFDirectoryLoader
+
 # Importing text splitter from Langchain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+
 # Importing OpenAI embeddings from Langchain
 from langchain.embeddings import OpenAIEmbeddings
+
 # Importing Document schema from Langchain
 from langchain.schema import Document
 from langchain.vectorstores.chroma import Chroma
@@ -43,8 +48,8 @@ def tavily_search(query: str) -> str:
 
     formatted_results = []
     for result in results:
-        title = result.get('title', 'No title')
-        content = result.get('content', 'No content')
+        title = result.get("title", "No title")
+        content = result.get("content", "No content")
 
         formatted_result = f"Title: {title}\n{content}"
         formatted_results.append(formatted_result)
@@ -70,7 +75,7 @@ def multiply(a: int, b: int) -> int:
 # =========================
 def wiki_search(query: str, year: str = None) -> str:
     """
-    Search Wikipedia for a query and return the URL of the most relevant page. 
+    Search Wikipedia for a query and return the URL of the most relevant page.
     """
     if year:
         search_query = f"{query} {year} Wikipedia"
@@ -79,9 +84,7 @@ def wiki_search(query: str, year: str = None) -> str:
 
     try:
         docs = WikipediaLoader(
-            query=search_query,
-            load_max_docs=1,
-            doc_content_chars_max=100
+            query=search_query, load_max_docs=1, doc_content_chars_max=100
         ).load()
         if docs and len(docs) > 0:
             url = docs[0].metadata["source"]
@@ -193,8 +196,10 @@ def split_text(web_content: str, source_url: str = None):
 
     # Split the text into chunks and convert to Document objects
     chunks = splitter.split_text(web_content)
-    documents = [Document(page_content=chunk, metadata={
-                          "source": source_url}) for chunk in chunks]
+    documents = [
+        Document(page_content=chunk, metadata={"source": source_url})
+        for chunk in chunks
+    ]
     return documents
 
 
@@ -213,9 +218,7 @@ def save_to_chroma(chunks: List[Document]):
 
         # Create a new Chroma database from the documents using OpenAI embeddings
         db = Chroma.from_documents(
-            chunks,
-            OpenAIEmbeddings(),
-            persist_directory=CHROMA_DB_PATH
+            chunks, OpenAIEmbeddings(), persist_directory=CHROMA_DB_PATH
         )
 
         # Persist the database to disk
@@ -224,6 +227,7 @@ def save_to_chroma(chunks: List[Document]):
     except Exception as e:
         print(f"Error saving to Chroma: {e}")
         return
+
 
 # Generate Data Store
 
@@ -240,6 +244,7 @@ def generate_data_store(fetch_result: tuple[str, str]):
     documents = split_text(html_content, url)
     save_to_chroma(documents)  # Save the processed data to a data store
 
+
 # Build Retriever
 
 
@@ -247,7 +252,7 @@ def retrieve_from_chroma(query: str) -> List[Document]:
     """
     Retrieve documents from Chroma database.
     """
-    db = Chroma(persist_directory=CHROMA_DB_PATH,
-                embedding_function=OpenAIEmbeddings())
+    db = Chroma(persist_directory=CHROMA_DB_PATH, embedding_function=OpenAIEmbeddings())
     return db.similarity_search(query)
+
 
